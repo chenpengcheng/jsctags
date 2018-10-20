@@ -75,7 +75,7 @@ var outputTags = function(tagslist) {
         return tag
       }
     )
-  )))
+  )));
 
   console.log(ctags.join(''));
 };
@@ -112,13 +112,37 @@ var parse = function(ctx, fn) {
     }
 
     tags.tagfile = ctx.file;
+    tags.push.apply(tags, parseExports(ctx))
+
     tags.forEach(function(tag) {
       tag.tagfile = ctx.file;
     });
 
     fn(err, tags);
   });
-};
+}
+
+var parseExports = function(ctx) {
+  var regex = /\s*(?:module.)?exports.?(\w+)? = (?:async|function) (\w+)?/
+  var lines = ctx.content.split("\n")
+  var exports = []
+
+  for (i = 0; i < lines.length; i++) {
+    var match = lines[i].match(regex)
+
+    if (match) {
+      exports.push({
+        name: match[1] || match[2],
+        addr: i + 1,
+        kind: "f",
+        type: "function",
+        lineno: i + 1,
+      })
+    }
+  }
+
+  return exports
+}
 
 var fromStdin = function() {
   collect(process.stdin, function(err, content) {
