@@ -25,7 +25,7 @@ const convert = (module.exports = function(tags) {
       return convert(tag);
     }
 
-    const buf = [tag.name, '\t', tags.tagfile, '\t'];
+    const buf = [tag.name, '\t', tag.tagfile, '\t'];
     buf.push(tag.addr !== undefined ? tag.addr : '//');
     const tagfields = [];
 

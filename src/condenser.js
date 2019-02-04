@@ -7,9 +7,6 @@ const tern = require('tern');
 const fs = require('fs');
 const once = require('once');
 
-require('tern-jsx');
-require('./local-scope');
-
 const config = function(dir, file) {
   const config = tryor(() => {
     return fs.readFileSync(path.join(dir, '.tern-project'), 'utf8');
@@ -93,20 +90,23 @@ module.exports = function(options, fn) {
 
   const filename = options.server.normalizeFilename(options.file);
 
-  options.server.request(
-    {
-      files: [
-        {
-          name: filename,
-          text: options.content,
-          type: 'full'
-        }
-      ]
-    },
-    err => {
-      _fn(err);
-    }
-  );
+  try {
+    options.server.request(
+      {
+        files: [
+          {
+            name: filename,
+            text: options.content,
+            type: 'full'
+          }
+        ]
+      },
+      err => {
+        _fn(err);
+      }
+    );
+  } catch(e) {
+  }
 
   options.server.flush(err => {
     if (err) {

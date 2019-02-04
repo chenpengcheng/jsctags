@@ -45,7 +45,8 @@ var file = (function() {
         return files.concat(
           glob.sync(pattern, {
             nosort: true,
-            silent: true
+            silent: true,
+            ignore: 'node_modules/**/*.js'
           })
         );
       }, []);
@@ -57,15 +58,13 @@ var file = (function() {
 
 var outputTags = function(tagslist) {
   var ctags = flatten(jsctags.ctags(tagslist.map(
-    (tags) => tags.filter(
-      (tag) => !tag.namespace || tag.kind !== "v"
-    ).map(
+    (tags) => tags.map(
       (tag) => {
         if (tag.namespace) {
           tag.namespace = tag.namespace.replace(".prototype", "")
         }
         if (tag.type) {
-            if (get(tag.origin, ["!data", "isConstructor"]) === true) {
+            if (get(tag.origin, "!data.isConstructor") === true) {
                 tag.kind = "c"
                 tag.type = "class"
             } else {
@@ -127,7 +126,7 @@ var parseExports = function(ctx) {
   var lines = ctx.content.split("\n")
   var exports = []
 
-  for (i = 0; i < lines.length; i++) {
+  for (var i = 0; i < lines.length; i++) {
     var match = lines[i].match(regex)
 
     if (match) {
